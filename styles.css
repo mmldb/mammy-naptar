@@ -132,16 +132,9 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
   border-top: 1px solid var(--line);
 }
 .day-row:first-child { border-top: 0; }
-.day-row.today { position: relative; }
-.day-row.today::after {
-  content: "";
-  position: absolute;
-  z-index: 4;
-  inset: 2px;
-  border: 1px solid rgba(255, 0, 63, .5);
-  border-radius: 10px;
-  pointer-events: none;
-}
+.day-row.today { border: 1px solid rgba(255, 0, 63, .5); }
+.day-row.today + .day-row { border-top: 0; }
+.day-row.today .slot { border-left-color: rgba(255, 0, 63, .5); }
 
 .date-cell {
   display: flex;
