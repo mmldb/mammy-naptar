@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0b0c" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Mammy" />
+    <meta name="description" content="Egyszerű, közös családi naptár." />
+    <title>Mammy csak egy van</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <main class="shell">
+      <section id="loginView" class="login-view hidden" aria-labelledby="loginTitle">
+        <div class="login-card">
+          <h1 id="loginTitle">Mammy csak egy van ❤️</h1>
+          <p class="login-copy">Lépj be a családi e-mail-címeddel.</p>
+          <form id="loginForm">
+            <label for="email">E-mail-cím</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+            <label for="password">Jelszó</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+            <button class="primary-button" type="submit">Belépés</button>
+            <p id="loginError" class="form-error" role="alert"></p>
+          </form>
+        </div>
+      </section>
+
+      <section id="calendarView" class="calendar-view">
+        <header class="app-header">
+          <h1>Mammy csak egy van ❤️</h1>
+          <div class="account">
+            <span id="demoBadge" class="demo-badge">PRÓBA</span>
+            <span id="userName" class="user-name">Próba felhasználó</span>
+            <button id="logoutButton" class="icon-button hidden" type="button" aria-label="Kijelentkezés" title="Kijelentkezés">
+              ↪
+            </button>
+          </div>
+        </header>
+
+        <nav class="week-nav" aria-label="Hetek közötti navigáció">
+          <button id="previousWeek" class="nav-button" type="button" aria-label="Előző hét">‹</button>
+          <button id="todayButton" class="today-nav" type="button" aria-label="Ugrás a mai hétre">MA</button>
+          <div class="week-title" aria-live="polite">
+            <strong id="weekRange"></strong>
+            <span id="weekLabel"></span>
+          </div>
+          <button id="nextWeek" class="nav-button" type="button" aria-label="Következő hét">›</button>
+        </nav>
+
+        <div class="period-headings" aria-hidden="true">
+          <span>DELELŐTT</span>
+          <span>DÉLUTÁN</span>
+        </div>
+
+        <section id="calendar" class="calendar" aria-label="Heti naptár"></section>
+      </section>
+    </main>
+
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    <section id="editor" class="editor hidden" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="editor-handle" aria-hidden="true"></div>
+      <div class="editor-header">
+        <div>
+          <p id="editorPeriod" class="eyebrow"></p>
+          <h2 id="editorTitle"></h2>
+        </div>
+        <button id="closeEditor" class="icon-button close-button" type="button" aria-label="Bezárás">×</button>
+      </div>
+
+      <fieldset>
+        <legend>Ki lesz Mammynál?</legend>
+        <div id="childChoices" class="child-choices"></div>
+      </fieldset>
+
+      <button id="unavailableChoice" class="unavailable-choice" type="button" aria-pressed="false" aria-label="Nem ér rá" title="Nem ér rá">
+        <span class="no-symbol" aria-hidden="true">🚫</span>
+      </button>
+
+      <label class="note-label" for="note">Megjegyzés</label>
+      <textarea id="note" rows="3" maxlength="240" placeholder="Például: 10:30-tól, Marciért az oviba…"></textarea>
+
+      <label class="all-day-option">
+        <input id="applyAllDay" type="checkbox" />
+        <span>Ugyanez legyen az egész napra</span>
+      </label>
+
+      <p id="updatedInfo" class="updated-info"></p>
+
+      <div class="editor-actions">
+        <button id="deleteEntry" class="danger-button" type="button">Törlés</button>
+        <button id="saveEntry" class="primary-button" type="button">Mentés</button>
+      </div>
+    </section>
+  </body>
+</html>
