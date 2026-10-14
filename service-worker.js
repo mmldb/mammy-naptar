@@ -1,15 +1,15 @@
-const CACHE = "mammy-calendar-v14";
+const CACHE = "mammy-calendar-v15";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=14",
-  "./app.js?v=14",
+  "./styles.css?v=15",
+  "./app.js?v=15",
   "./config.js",
-  "./manifest.webmanifest",
-  "./icons/icon.svg",
-  "./icons/heart-192.png",
-  "./icons/heart-512.png",
-  "./icons/heart-maskable-512.png"
+  "./manifest.webmanifest?v=2",
+  "./icons/icon-v2.svg",
+  "./icons/heart-192-v2.png",
+  "./icons/heart-512-v2.png",
+  "./icons/heart-maskable-512-v2.png"
 ];
 
 self.addEventListener("install", event => {
