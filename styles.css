@@ -132,6 +132,16 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
   border-top: 1px solid var(--line);
 }
 .day-row:first-child { border-top: 0; }
+.day-row.today { position: relative; }
+.day-row.today::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 2px;
+  border: 1px solid rgba(255, 0, 63, .5);
+  border-radius: 10px;
+  pointer-events: none;
+}
 
 .date-cell {
   display: flex;
@@ -210,6 +220,7 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
   background: repeating-linear-gradient(135deg, #351019, #351019 13px, #4a1020 13px, #4a1020 26px);
   color: #fff;
 }
+.unavailable-symbol { font-size: 1.55rem; line-height: 1; }
 .slot-note {
   position: relative;
   z-index: 2;

@@ -162,7 +162,7 @@ function renderSlot(date, period) {
   let content = "";
   if (!empty) {
     if (entry.unavailable) {
-      content = `<span class="slot-fill unavailable-fill"><span class="child-label">🚫 NEM ÉR RÁ</span></span>`;
+      content = `<span class="slot-fill unavailable-fill"><span class="unavailable-symbol" aria-hidden="true">🚫</span></span>`;
     } else if (entry.children?.length) {
       const panels = entry.children.map(code => {
         const child = CHILDREN.find(item => item.code === code);
@@ -170,9 +170,10 @@ function renderSlot(date, period) {
       }).join("");
       content = `<span class="slot-fill child-count-${entry.children.length}">${panels}</span>`;
     }
-    if (entry.note) content += `<span class="slot-note${noteOnly ? " note-only-text" : ""}">${escapeHtml(entry.note)}</span>`;
+    if (entry.note && !entry.unavailable) content += `<span class="slot-note${noteOnly ? " note-only-text" : ""}">${escapeHtml(entry.note)}</span>`;
   }
-  return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése">${content}</button>`;
+  const availabilityLabel = entry?.unavailable ? ", Mammy nem ér rá" : "";
+  return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése${availabilityLabel}">${content}</button>`;
 }
 
 function localEntries() {
