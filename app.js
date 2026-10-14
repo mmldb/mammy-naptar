@@ -158,6 +158,7 @@ function renderSlot(date, period) {
   const iso = dateKey(date);
   const entry = state.entries.get(entryKey(iso, period));
   const empty = !entry || (!entry.unavailable && !entry.children?.length && !entry.note);
+  const noteOnly = !empty && !entry.unavailable && !entry.children?.length && Boolean(entry.note);
   let content = "";
   if (!empty) {
     if (entry.unavailable) {
@@ -171,7 +172,7 @@ function renderSlot(date, period) {
     }
     if (entry.note) content += `<span class="slot-note">${escapeHtml(entry.note)}</span>`;
   }
-  return `<button class="slot ${empty ? "empty" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése">${content}</button>`;
+  return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése">${content}</button>`;
 }
 
 function localEntries() {

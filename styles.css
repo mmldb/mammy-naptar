@@ -196,6 +196,13 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
   font-weight: 750;
   line-height: 1.28;
 }
+.slot.note-only { justify-content: flex-start; }
+.slot.note-only .slot-note {
+  margin-top: 0;
+  color: #f2f2f3;
+  font-size: .88rem;
+  font-weight: 700;
+}
 .slot-unavailable .slot-note { color: #fff; }
 
 .modal-backdrop {
@@ -268,6 +275,7 @@ textarea, input[type="email"], input[type="password"], input[type="text"] {
   outline: none;
 }
 textarea { min-height: 88px; padding: 12px; resize: vertical; line-height: 1.4; }
+.note-help { margin: 7px 0 18px; color: #9b9ba3; font-size: .78rem; }
 textarea:focus, input:focus { border-color: #85858d; box-shadow: 0 0 0 3px rgba(255,255,255,.06); }
 
 .all-day-option { display: flex; align-items: center; gap: 10px; margin: 15px 0; color: #dddddf; font-size: .82rem; cursor: pointer; }

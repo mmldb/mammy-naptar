@@ -1,4 +1,4 @@
-const CACHE = "mammy-calendar-v7";
+const CACHE = "mammy-calendar-v8";
 const ASSETS = [
   "./",
   "./index.html",
