@@ -25,13 +25,18 @@
       <section id="loginView" class="login-view hidden" aria-labelledby="loginTitle">
         <div class="login-card">
           <h1 id="loginTitle">Mammy csak egy van ❤️</h1>
-          <p class="login-copy">Lépj be a családi e-mail-címeddel.</p>
+          <p class="login-copy">Kérj egy egyszer használatos, 6 jegyű belépési kódot e-mailben.</p>
           <form id="loginForm">
-            <label for="email">E-mail-cím</label>
-            <input id="email" name="email" type="email" autocomplete="email" required />
-            <label for="password">Jelszó</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required />
-            <button class="primary-button" type="submit">Belépés</button>
+            <div id="emailField">
+              <label for="email">E-mail-cím</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div id="codeField" class="hidden">
+              <label for="loginCode">6 jegyű kód</label>
+              <input id="loginCode" name="loginCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" />
+            </div>
+            <button id="loginButton" class="primary-button" type="submit">Belépési kód kérése</button>
+            <button id="changeEmailButton" class="text-button hidden" type="button">Másik e-mail-cím</button>
             <p id="loginError" class="form-error" role="alert"></p>
           </form>
         </div>

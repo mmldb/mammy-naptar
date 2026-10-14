@@ -8,6 +8,7 @@ const CHILDREN = [
 const DAYS = ["Vasárnap", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat"];
 const MONTHS = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
 const PERIOD_NAMES = { am: "Délelőtt", pm: "Délután" };
+const PENDING_EMAIL_KEY = "mammy-pending-email";
 const config = window.NAGYI_CONFIG || {};
 const hasSupabase = Boolean(config.supabaseUrl && config.supabaseAnonKey && window.supabase);
 const client = hasSupabase ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
@@ -28,6 +29,12 @@ const els = {
   loginView: document.querySelector("#loginView"),
   loginForm: document.querySelector("#loginForm"),
   loginError: document.querySelector("#loginError"),
+  emailField: document.querySelector("#emailField"),
+  email: document.querySelector("#email"),
+  codeField: document.querySelector("#codeField"),
+  loginCode: document.querySelector("#loginCode"),
+  loginButton: document.querySelector("#loginButton"),
+  changeEmailButton: document.querySelector("#changeEmailButton"),
   calendar: document.querySelector("#calendar"),
   weekRange: document.querySelector("#weekRange"),
   weekLabel: document.querySelector("#weekLabel"),
@@ -86,6 +93,37 @@ function showToast(message) {
   els.toast.classList.add("show");
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 2200);
+}
+
+function setLoginMessage(message = "", kind = "error") {
+  els.loginError.textContent = message;
+  els.loginError.dataset.kind = kind;
+}
+
+function setAuthStep(step, email = "") {
+  const enteringCode = step === "code";
+  els.emailField.classList.toggle("hidden", enteringCode);
+  els.codeField.classList.toggle("hidden", !enteringCode);
+  els.changeEmailButton.classList.toggle("hidden", !enteringCode);
+  els.email.required = !enteringCode;
+  els.loginCode.required = enteringCode;
+  els.loginButton.textContent = enteringCode ? "Belépés" : "Belépési kód kérése";
+  if (enteringCode) {
+    els.email.value = email;
+    localStorage.setItem(PENDING_EMAIL_KEY, email);
+    els.loginCode.value = "";
+    els.loginCode.focus();
+  } else {
+    localStorage.removeItem(PENDING_EMAIL_KEY);
+    els.loginCode.value = "";
+    els.email.focus();
+  }
+}
+
+function emailSendError(error) {
+  if (error?.code === "over_email_send_rate_limit") return "Túl sok kódot kértünk. Várj egy kicsit, majd próbáld újra.";
+  if (error?.code === "over_request_rate_limit") return "Túl sok próbálkozás történt. Várj néhány percet.";
+  return "Nem sikerült elküldeni a kódot. Próbáld meg később.";
 }
 
 function renderChildChoices() {
@@ -307,6 +345,8 @@ async function initializeAuth() {
   else {
     els.calendarView.classList.add("hidden");
     els.loginView.classList.remove("hidden");
+    const pendingEmail = localStorage.getItem(PENDING_EMAIL_KEY);
+    setAuthStep(pendingEmail ? "code" : "email", pendingEmail || "");
   }
   client.auth.onAuthStateChange((_event, session) => {
     if (session && session.user?.id !== state.user?.id) showAuthenticated(session);
@@ -345,13 +385,50 @@ document.addEventListener("keydown", event => { if (event.key === "Escape" && st
 
 els.loginForm.addEventListener("submit", async event => {
   event.preventDefault();
-  els.loginError.textContent = "";
-  const form = new FormData(els.loginForm);
-  const button = els.loginForm.querySelector("button");
-  button.disabled = true;
-  const { error } = await client.auth.signInWithPassword({ email: form.get("email"), password: form.get("password") });
-  if (error) els.loginError.textContent = "Hibás e-mail-cím vagy jelszó.";
-  button.disabled = false;
+  setLoginMessage();
+  els.loginButton.disabled = true;
+  const email = els.email.value.trim().toLowerCase();
+  if (!els.codeField.classList.contains("hidden")) {
+    const token = els.loginCode.value.trim();
+    if (!/^\d{6,8}$/.test(token)) {
+      setLoginMessage("Írd be a levélben kapott 6 jegyű kódot.");
+      els.loginButton.disabled = false;
+      els.loginCode.select();
+      return;
+    }
+    setLoginMessage("A kód ellenőrzése…", "success");
+    const { error } = await client.auth.verifyOtp({ email, token, type: "email" });
+    els.loginButton.disabled = false;
+    if (error) {
+      setLoginMessage("A kód hibás, lejárt, vagy már felhasználták. Kérj új kódot.");
+      els.loginCode.select();
+    } else {
+      localStorage.removeItem(PENDING_EMAIL_KEY);
+      setLoginMessage("Sikeres belépés…", "success");
+    }
+    return;
+  }
+
+  setLoginMessage("A belépési kód küldése…", "success");
+  const { error } = await client.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+      emailRedirectTo: "https://mmldb.github.io/mammy-naptar/"
+    }
+  });
+  els.loginButton.disabled = false;
+  if (error) {
+    setLoginMessage(emailSendError(error));
+  } else {
+    setAuthStep("code", email);
+    setLoginMessage("Elküldtük a 6 jegyű kódot. Írd be ide a levélből.", "success");
+  }
+});
+
+els.changeEmailButton.addEventListener("click", () => {
+  setLoginMessage();
+  setAuthStep("email");
 });
 
 els.logoutButton.addEventListener("click", async () => {

@@ -259,7 +259,7 @@ legend, .note-label { display: block; margin-bottom: 9px; color: #d8d8dc; font-s
 .unavailable-choice[aria-pressed="true"] { border-color: #a94850; background: #351f22; }
 .no-symbol { font-size: 1.7rem; line-height: 1; }
 
-textarea, input[type="email"], input[type="password"] {
+textarea, input[type="email"], input[type="password"], input[type="text"] {
   width: 100%;
   border: 1px solid #44444a;
   border-radius: 13px;
@@ -310,7 +310,19 @@ textarea:focus, input:focus { border-color: #85858d; box-shadow: 0 0 0 3px rgba(
 .login-card label { display: block; margin: 14px 0 7px; color: #d8d8dc; font-size: .78rem; font-weight: 750; }
 .login-card input { height: 48px; padding: 0 12px; }
 .login-card .primary-button { width: 100%; margin-top: 18px; }
+.text-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 750;
+}
 .form-error { min-height: 18px; margin: 10px 0 0; color: #ff969d; font-size: .74rem; }
+.form-error[data-kind="success"] { color: #b9d9b7; }
 
 @media (min-width: 640px) {
   .shell { padding-right: 24px; padding-left: 24px; }
