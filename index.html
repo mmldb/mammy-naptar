@@ -13,10 +13,10 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/heart-192.png" />
-    <link rel="stylesheet" href="styles.css?v=9" />
+    <link rel="stylesheet" href="styles.css?v=10" />
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js?v=9" defer></script>
+    <script src="app.js?v=10" defer></script>
   </head>
   <body>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -24,7 +24,7 @@
     <main class="shell">
       <section id="loginView" class="login-view hidden" aria-labelledby="loginTitle">
         <div class="login-card">
-          <h1 id="loginTitle">Mammy csak egy van ❤️</h1>
+          <h1 id="loginTitle">Mammy csak egy van <span class="title-heart">♥</span></h1>
           <p class="login-copy">Kérj egy egyszer használatos, 6 jegyű belépési kódot e-mailben.</p>
           <form id="loginForm">
             <div id="emailField">
@@ -44,7 +44,7 @@
 
       <section id="calendarView" class="calendar-view">
         <header class="app-header">
-          <h1>Mammy csak egy van ❤️</h1>
+          <h1>Mammy csak egy van <span class="title-heart">♥</span></h1>
           <div class="account">
             <span id="demoBadge" class="demo-badge">PRÓBA</span>
             <span id="userName" class="user-name">Próba felhasználó</span>
