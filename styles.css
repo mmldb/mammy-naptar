@@ -197,10 +197,11 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
   line-height: 1.28;
 }
 .slot.note-only { justify-content: flex-start; }
-.slot.note-only .slot-note {
+.slot.note-only .slot-note,
+.slot-note.note-only-text {
   margin-top: 0;
-  color: #f2f2f3;
-  font-size: .88rem;
+  color: #f2f2f3 !important;
+  font-size: .9rem;
   font-weight: 700;
 }
 .slot-unavailable .slot-note { color: #fff; }
