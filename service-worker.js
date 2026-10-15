@@ -1,9 +1,9 @@
-const CACHE = "mammy-calendar-v15";
+const CACHE = "mammy-calendar-v16";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=15",
-  "./app.js?v=15",
+  "./styles.css?v=16",
+  "./app.js?v=16",
   "./config.js",
   "./manifest.webmanifest?v=2",
   "./icons/icon-v2.svg",

@@ -127,10 +127,12 @@ function emailSendError(error) {
 }
 
 function renderChildChoices() {
+  const mammyChoice = els.unavailableChoice;
   els.childChoices.innerHTML = CHILDREN.map(child => `
     <button class="child-choice" type="button" data-child="${child.code}" aria-pressed="false" aria-label="${child.name}">
       ${child.name.toUpperCase()}
     </button>`).join("");
+  els.childChoices.append(mammyChoice);
 }
 
 function renderCalendar() {
@@ -162,7 +164,7 @@ function renderSlot(date, period) {
   let content = "";
   if (!empty) {
     if (entry.unavailable) {
-      content = `<span class="slot-fill unavailable-fill"><span class="unavailable-symbol" aria-hidden="true">🚫</span></span>`;
+      content = `<span class="slot-fill unavailable-fill"><span class="child-label">MAMMY</span></span>`;
     } else if (entry.children?.length) {
       const panels = entry.children.map(code => {
         const child = CHILDREN.find(item => item.code === code);
@@ -363,6 +365,7 @@ els.calendar.addEventListener("click", event => {
 els.childChoices.addEventListener("click", event => {
   const button = event.target.closest(".child-choice");
   if (!button) return;
+  if (button === els.unavailableChoice) return;
   state.unavailable = false;
   const code = button.dataset.child;
   if (state.selectedChildren.has(code)) state.selectedChildren.delete(code);
