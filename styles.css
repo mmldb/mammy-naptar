@@ -207,10 +207,10 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
 }
 .unavailable-fill {
   display: block;
-  background: var(--danger);
-  color: #fff;
+  background: var(--mango);
+  color: #101012;
 }
-.unavailable-fill .child-label { color: #fff; }
+.unavailable-fill .child-label { color: #101012; }
 .slot-note {
   position: relative;
   z-index: 2;
@@ -268,7 +268,7 @@ h2 { margin-bottom: 0; font-size: 1.42rem; letter-spacing: -0.025em; }
 
 fieldset { padding: 0; border: 0; margin: 0 0 16px; }
 legend, .note-label { display: block; margin-bottom: 9px; color: #d8d8dc; font-size: .78rem; font-weight: 800; }
-.child-choices { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.child-choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .child-choice {
   min-height: 58px;
   border: 2px solid transparent;
@@ -283,7 +283,22 @@ legend, .note-label { display: block; margin-bottom: 9px; color: #d8d8dc; font-s
 .child-choice[data-child="MA"] { background: var(--ma); color: #fff; }
 .child-choice[data-child="JU"] { background: var(--ju); }
 
-.mammy-choice { background: var(--danger); color: #fff; }
+.mammy-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 62px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: var(--mango);
+  color: #101012;
+  cursor: pointer;
+  font-weight: 900;
+}
+.mammy-choice[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.2); transform: translateY(-1px); }
 
 textarea, input[type="email"], input[type="password"], input[type="text"] {
   width: 100%;

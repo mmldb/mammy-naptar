@@ -13,10 +13,10 @@
     <link rel="manifest" href="manifest.webmanifest?v=2" />
     <link rel="icon" href="icons/icon-v2.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/heart-192-v2.png" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=17" />
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js?v=16" defer></script>
+    <script src="app.js?v=17" defer></script>
   </head>
   <body>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -86,10 +86,10 @@
 
       <fieldset>
         <legend>Ki lesz Mammynál?</legend>
-        <div id="childChoices" class="child-choices">
-          <button id="unavailableChoice" class="child-choice mammy-choice" type="button" aria-pressed="false" aria-label="Mammy elfoglalt" title="Mammy elfoglalt">MAMMY</button>
-        </div>
+        <div id="childChoices" class="child-choices"></div>
       </fieldset>
+
+      <button id="unavailableChoice" class="mammy-choice" type="button" aria-pressed="false" aria-label="Mammy elfoglalt" title="Mammy elfoglalt">MAMMY</button>
 
       <label class="note-label" for="note">Megjegyzés</label>
       <textarea id="note" rows="3" maxlength="240" placeholder="Például: 10:30-tól, Marciért az oviba…"></textarea>

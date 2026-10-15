@@ -127,12 +127,10 @@ function emailSendError(error) {
 }
 
 function renderChildChoices() {
-  const mammyChoice = els.unavailableChoice;
   els.childChoices.innerHTML = CHILDREN.map(child => `
     <button class="child-choice" type="button" data-child="${child.code}" aria-pressed="false" aria-label="${child.name}">
       ${child.name.toUpperCase()}
     </button>`).join("");
-  els.childChoices.append(mammyChoice);
 }
 
 function renderCalendar() {
@@ -172,7 +170,7 @@ function renderSlot(date, period) {
       }).join("");
       content = `<span class="slot-fill child-count-${entry.children.length}">${panels}</span>`;
     }
-    if (entry.note && !entry.unavailable) content += `<span class="slot-note${noteOnly ? " note-only-text" : ""}">${escapeHtml(entry.note)}</span>`;
+    if (entry.note) content += `<span class="slot-note${noteOnly ? " note-only-text" : ""}">${escapeHtml(entry.note)}</span>`;
   }
   const availabilityLabel = entry?.unavailable ? ", Mammy nem ér rá" : "";
   return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése${availabilityLabel}">${content}</button>`;
@@ -365,7 +363,6 @@ els.calendar.addEventListener("click", event => {
 els.childChoices.addEventListener("click", event => {
   const button = event.target.closest(".child-choice");
   if (!button) return;
-  if (button === els.unavailableChoice) return;
   state.unavailable = false;
   const code = button.dataset.child;
   if (state.selectedChildren.has(code)) state.selectedChildren.delete(code);
