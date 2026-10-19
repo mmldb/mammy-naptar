@@ -84,6 +84,18 @@ function formatRange(start) {
   return `${start.getMonth() + 1}.${String(start.getDate()).padStart(2, "0")} – ${end.getMonth() + 1}.${String(end.getDate()).padStart(2, "0")}.`;
 }
 
+function formatEditedAt(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  return `${year}.${month}.${day}. ${hour}:${minute}`;
+}
+
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
 }
@@ -208,7 +220,10 @@ function openEditor(date, period) {
   els.editorTitle.textContent = `${MONTHS[parsed.getMonth()]} ${parsed.getDate()}., ${DAYS[parsed.getDay()].toLowerCase()}`;
   els.note.value = entry?.note || "";
   els.applyAllDay.checked = false;
-  els.updatedInfo.textContent = entry?.updated_by_name ? `Legutóbb szerkesztette: ${entry.updated_by_name}` : "";
+  const editedAt = formatEditedAt(entry?.updated_at);
+  els.updatedInfo.textContent = entry?.updated_by_name
+    ? `Utoljára szerkesztette: ${entry.updated_by_name}${editedAt ? ` ${editedAt}` : ""}`
+    : "";
   els.deleteEntry.style.visibility = entry ? "visible" : "hidden";
   syncChoices();
   els.backdrop.classList.remove("hidden");
