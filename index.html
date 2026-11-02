@@ -13,10 +13,10 @@
     <link rel="manifest" href="manifest.webmanifest?v=2" />
     <link rel="icon" href="icons/icon-v2.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/heart-192-v2.png" />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=19" />
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js?v=18" defer></script>
+    <script src="app.js?v=19" defer></script>
   </head>
   <body>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -85,14 +85,22 @@
       </div>
 
       <fieldset>
-        <legend>Ki lesz Mammynál?</legend>
+        <legend>Kik kerüljenek ebbe a napszakba?</legend>
         <div id="childChoices" class="child-choices"></div>
       </fieldset>
 
-      <button id="unavailableChoice" class="mammy-choice" type="button" aria-pressed="false" aria-label="Mammy elfoglalt" title="Mammy elfoglalt">MAMMY</button>
+      <button id="mammyChoice" class="mammy-choice" type="button" aria-pressed="false" aria-label="Mammy elfoglalt" title="Mammy elfoglalt">MAMMY</button>
 
-      <label class="note-label" for="note">Megjegyzés</label>
-      <textarea id="note" rows="3" maxlength="240" placeholder="Például: 10:30-tól, Marciért az oviba…"></textarea>
+      <section class="order-block" aria-labelledby="orderTitle">
+        <div class="order-head">
+          <strong id="orderTitle">Sorrend a napszakon belül</strong>
+          <small>Fentről lefelé: ami előbb történik, az kerüljön feljebb.</small>
+        </div>
+        <div id="orderList" class="order-list"></div>
+      </section>
+
+      <label class="note-label" for="note">Általános megjegyzés</label>
+      <textarea id="note" rows="3" maxlength="240" placeholder="Az egész napszakra vonatkozó megjegyzés…"></textarea>
       <p class="note-help">Gyerek kiválasztása nélkül is elmenthető.</p>
 
       <label class="all-day-option">

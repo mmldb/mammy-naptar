@@ -12,6 +12,7 @@ create table if not exists public.mammy_entries (
   period text not null check (period in ('am', 'pm')),
   children text[] not null default '{}',
   unavailable boolean not null default false,
+  schedule jsonb not null default '[]'::jsonb check (jsonb_typeof(schedule) = 'array'),
   note text not null default '' check (char_length(note) <= 240),
   updated_by uuid not null references public.mammy_profiles(id),
   updated_at timestamptz not null default now(),
@@ -19,6 +20,9 @@ create table if not exists public.mammy_entries (
   check (not unavailable or cardinality(children) = 0),
   check (children <@ array['ZS', 'MI', 'MA', 'JU']::text[])
 );
+
+alter table public.mammy_entries
+add column if not exists schedule jsonb not null default '[]'::jsonb;
 
 alter table public.mammy_profiles enable row level security;
 alter table public.mammy_entries enable row level security;

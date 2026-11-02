@@ -4,6 +4,9 @@ const CHILDREN = [
   { code: "MA", name: "Marci" },
   { code: "JU", name: "Juli" }
 ];
+const MAMMY = { code: "MM", name: "Mammy" };
+const PEOPLE = [...CHILDREN, MAMMY];
+const VALID_PERSON_CODES = new Set(PEOPLE.map(person => person.code));
 
 const DAYS = ["Vasárnap", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat"];
 const MONTHS = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
@@ -17,8 +20,7 @@ const state = {
   weekStart: startOfWeek(new Date()),
   entries: new Map(),
   editing: null,
-  selectedChildren: new Set(),
-  unavailable: false,
+  schedule: [],
   user: null,
   profile: null,
   subscription: null
@@ -46,7 +48,8 @@ const els = {
   editorTitle: document.querySelector("#editorTitle"),
   editorPeriod: document.querySelector("#editorPeriod"),
   childChoices: document.querySelector("#childChoices"),
-  unavailableChoice: document.querySelector("#unavailableChoice"),
+  mammyChoice: document.querySelector("#mammyChoice"),
+  orderList: document.querySelector("#orderList"),
   note: document.querySelector("#note"),
   applyAllDay: document.querySelector("#applyAllDay"),
   updatedInfo: document.querySelector("#updatedInfo"),
@@ -100,6 +103,27 @@ function escapeHtml(value = "") {
   return String(value).replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
 }
 
+function personByCode(code) {
+  return PEOPLE.find(person => person.code === code);
+}
+
+function normalizeSchedule(entry) {
+  const normalized = [];
+  const seen = new Set();
+  const stored = Array.isArray(entry?.schedule) ? entry.schedule : [];
+  stored.forEach(item => {
+    const code = typeof item === "string" ? item : item?.code;
+    if (!VALID_PERSON_CODES.has(code) || seen.has(code)) return;
+    normalized.push({ code, note: String(typeof item === "object" ? item?.note || "" : "").slice(0, 120) });
+    seen.add(code);
+  });
+  if (normalized.length) return normalized;
+  if (entry?.unavailable) return [{ code: MAMMY.code, note: "" }];
+  return (entry?.children || [])
+    .filter(code => VALID_PERSON_CODES.has(code) && code !== MAMMY.code)
+    .map(code => ({ code, note: "" }));
+}
+
 function showToast(message) {
   els.toast.textContent = message;
   els.toast.classList.add("show");
@@ -145,6 +169,20 @@ function renderChildChoices() {
     </button>`).join("");
 }
 
+function renderOrderList() {
+  els.orderList.innerHTML = state.schedule.length ? state.schedule.map((item, index) => {
+    const person = personByCode(item.code);
+    return `<div class="order-row">
+      <span class="order-number">${index + 1}</span>
+      <span class="order-color order-color-${item.code.toLowerCase()}"></span>
+      <span class="order-label">${escapeHtml(person?.name?.toUpperCase() || item.code)}</span>
+      <button class="move-button" type="button" data-index="${index}" data-direction="-1" aria-label="${escapeHtml(person?.name || item.code)} feljebb" ${index === 0 ? "disabled" : ""}>↑</button>
+      <button class="move-button" type="button" data-index="${index}" data-direction="1" aria-label="${escapeHtml(person?.name || item.code)} lejjebb" ${index === state.schedule.length - 1 ? "disabled" : ""}>↓</button>
+      <input class="person-note-input" type="text" maxlength="120" data-note-index="${index}" aria-label="${escapeHtml(person?.name || item.code)} saját megjegyzése" value="${escapeHtml(item.note)}" placeholder="Rövid megjegyzés ehhez a részhez…" />
+    </div>`;
+  }).join("") : `<p class="order-empty">Válassz legalább egy elemet.</p>`;
+}
+
 function renderCalendar() {
   const today = new Date();
   const currentStart = startOfWeek(today);
@@ -169,23 +207,24 @@ function renderCalendar() {
 function renderSlot(date, period) {
   const iso = dateKey(date);
   const entry = state.entries.get(entryKey(iso, period));
-  const empty = !entry || (!entry.unavailable && !entry.children?.length && !entry.note);
-  const noteOnly = !empty && !entry.unavailable && !entry.children?.length && Boolean(entry.note);
+  const schedule = normalizeSchedule(entry);
+  const empty = !entry || (!schedule.length && !entry.note);
+  const noteOnly = !empty && !schedule.length && Boolean(entry.note);
+  const hasPersonNotes = schedule.some(item => item.note);
   let content = "";
   if (!empty) {
-    if (entry.unavailable) {
-      content = `<span class="slot-fill unavailable-fill"><span class="child-label">MAMMY</span></span>`;
-    } else if (entry.children?.length) {
-      const panels = entry.children.map(code => {
-        const child = CHILDREN.find(item => item.code === code);
-        return `<span class="child-panel child-panel-${code.toLowerCase()}"><span class="child-label">${escapeHtml(child?.name?.toUpperCase() || code)}</span></span>`;
+    if (schedule.length) {
+      const panels = schedule.map(item => {
+        const person = personByCode(item.code);
+        const detail = item.note ? `<span class="person-note-text">${escapeHtml(item.note)}</span>` : "";
+        return `<span class="child-panel child-panel-${item.code.toLowerCase()}"><span class="child-label">${escapeHtml(person?.name?.toUpperCase() || item.code)}</span>${detail}</span>`;
       }).join("");
-      content = `<span class="slot-fill child-count-${entry.children.length}">${panels}</span>`;
+      content = `<span class="slot-fill child-count-${schedule.length}">${panels}</span>`;
     }
     if (entry.note) content += `<span class="slot-note${noteOnly ? " note-only-text" : ""}">${escapeHtml(entry.note)}</span>`;
   }
-  const availabilityLabel = entry?.unavailable ? ", Mammy nem ér rá" : "";
-  return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${entry?.unavailable ? "slot-unavailable" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése${availabilityLabel}">${content}</button>`;
+  const hasMammy = schedule.some(item => item.code === MAMMY.code);
+  return `<button class="slot ${empty ? "empty" : ""} ${noteOnly ? "note-only" : ""} ${hasPersonNotes ? "has-person-notes" : ""} ${hasPersonNotes && entry?.note ? "has-global-note" : ""}" type="button" data-date="${iso}" data-period="${period}" aria-label="${DAYS[date.getDay()]} ${PERIOD_NAMES[period]} szerkesztése${hasMammy ? ", Mammy is szerepel" : ""}">${content}</button>`;
 }
 
 function localEntries() {
@@ -213,8 +252,7 @@ async function loadWeek() {
 function openEditor(date, period) {
   const entry = state.entries.get(entryKey(date, period));
   state.editing = { date, period };
-  state.selectedChildren = new Set(entry?.children || []);
-  state.unavailable = Boolean(entry?.unavailable);
+  state.schedule = normalizeSchedule(entry);
   els.editorPeriod.textContent = PERIOD_NAMES[period].toUpperCase();
   const parsed = new Date(`${date}T12:00:00`);
   els.editorTitle.textContent = `${MONTHS[parsed.getMonth()]} ${parsed.getDate()}., ${DAYS[parsed.getDay()].toLowerCase()}`;
@@ -241,9 +279,10 @@ function closeEditor() {
 
 function syncChoices() {
   els.childChoices.querySelectorAll(".child-choice").forEach(button => {
-    button.setAttribute("aria-pressed", String(state.selectedChildren.has(button.dataset.child)));
+    button.setAttribute("aria-pressed", String(state.schedule.some(item => item.code === button.dataset.child)));
   });
-  els.unavailableChoice.setAttribute("aria-pressed", String(state.unavailable));
+  els.mammyChoice.setAttribute("aria-pressed", String(state.schedule.some(item => item.code === MAMMY.code)));
+  renderOrderList();
 }
 
 function setBusy(busy) {
@@ -258,11 +297,13 @@ async function persistEntry(date, period, shouldDelete = false) {
       const response = await client.from("mammy_entries").delete().eq("entry_date", date).eq("period", period);
       if (response.error) throw response.error;
     } else {
+      const schedule = state.schedule.map(item => ({ code: item.code, note: item.note.trim() }));
       const payload = {
         entry_date: date,
         period,
-        children: [...state.selectedChildren],
-        unavailable: state.unavailable,
+        children: schedule.filter(item => item.code !== MAMMY.code).map(item => item.code),
+        unavailable: schedule.length === 1 && schedule[0].code === MAMMY.code,
+        schedule,
         note: els.note.value.trim(),
         updated_by: state.user.id,
         updated_at: new Date().toISOString()
@@ -272,15 +313,19 @@ async function persistEntry(date, period, shouldDelete = false) {
     }
   } else {
     const rows = localEntries().filter(row => entryKey(row.entry_date, row.period) !== key);
-    if (!shouldDelete) rows.push({
-      entry_date: date,
-      period,
-      children: [...state.selectedChildren],
-      unavailable: state.unavailable,
-      note: els.note.value.trim(),
-      updated_by_name: "Próba felhasználó",
-      updated_at: new Date().toISOString()
-    });
+    if (!shouldDelete) {
+      const schedule = state.schedule.map(item => ({ code: item.code, note: item.note.trim() }));
+      rows.push({
+        entry_date: date,
+        period,
+        children: schedule.filter(item => item.code !== MAMMY.code).map(item => item.code),
+        unavailable: schedule.length === 1 && schedule[0].code === MAMMY.code,
+        schedule,
+        note: els.note.value.trim(),
+        updated_by_name: "Próba felhasználó",
+        updated_at: new Date().toISOString()
+      });
+    }
     localStorage.setItem("nagyi-calendar-entries", JSON.stringify(rows));
   }
 }
@@ -290,7 +335,7 @@ async function saveCurrent() {
   setBusy(true);
   try {
     const { date, period } = state.editing;
-    const empty = !state.unavailable && state.selectedChildren.size === 0 && !els.note.value.trim();
+    const empty = state.schedule.length === 0 && !els.note.value.trim();
     const periods = els.applyAllDay.checked ? ["am", "pm"] : [period];
     await Promise.all(periods.map(value => persistEntry(date, value, empty)));
     await loadWeek();
@@ -378,17 +423,34 @@ els.calendar.addEventListener("click", event => {
 els.childChoices.addEventListener("click", event => {
   const button = event.target.closest(".child-choice");
   if (!button) return;
-  state.unavailable = false;
   const code = button.dataset.child;
-  if (state.selectedChildren.has(code)) state.selectedChildren.delete(code);
-  else state.selectedChildren.add(code);
+  const index = state.schedule.findIndex(item => item.code === code);
+  if (index >= 0) state.schedule.splice(index, 1);
+  else state.schedule.push({ code, note: "" });
   syncChoices();
 });
 
-els.unavailableChoice.addEventListener("click", () => {
-  state.unavailable = !state.unavailable;
-  if (state.unavailable) state.selectedChildren.clear();
+els.mammyChoice.addEventListener("click", () => {
+  const index = state.schedule.findIndex(item => item.code === MAMMY.code);
+  if (index >= 0) state.schedule.splice(index, 1);
+  else state.schedule.push({ code: MAMMY.code, note: "" });
   syncChoices();
+});
+
+els.orderList.addEventListener("click", event => {
+  const button = event.target.closest(".move-button");
+  if (!button || button.disabled) return;
+  const index = Number(button.dataset.index);
+  const target = index + Number(button.dataset.direction);
+  [state.schedule[index], state.schedule[target]] = [state.schedule[target], state.schedule[index]];
+  syncChoices();
+});
+
+els.orderList.addEventListener("input", event => {
+  const input = event.target.closest(".person-note-input");
+  if (!input) return;
+  const item = state.schedule[Number(input.dataset.noteIndex)];
+  if (item) item.note = input.value;
 });
 
 document.querySelector("#previousWeek").addEventListener("click", async () => { state.weekStart = addDays(state.weekStart, -7); await loadWeek(); });
